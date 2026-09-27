@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pãodora — Cadastro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:           #f7ecdc;
+    --text:         #2b1810;
+    --text-muted:   #8a6a4c;
+    --gold-light:   #f4cf87;
+    --gold:         #d79a3c;
+    --gold-deep:    #b97b25;
+    --red:          #c1462f;
+    --red-bg:       #f6ddd6;
+    --bread-color:  #c98a2e;
+    --bread-opacity: 1;
+  }
+
+  html[data-theme="dark"]{
+    --bg:           #170f09;
+    --text:         #f7ecdc;
+    --text-muted:   #c9a877;
+    --gold-light:   #f6d488;
+    --gold:         #e8ac45;
+    --gold-deep:    #c98a2e;
+    --red:          #e2725a;
+    --red-bg:       #3a2119;
+    --bread-color:  #f0bb63;
+  }
+
+  *{ box-sizing: border-box; }
+  html, body{ height: 100%; margin: 0; }
+
+  body{
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow-x: hidden;
+    transition: background-color 320ms ease, color 320ms ease;
+  }
+
+  /* ---------- desenhos de pão no fundo, sempre visíveis ---------- */
+  .bg-breads{
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    color: var(--bread-color);
+    pointer-events: none;
+    transition: color 320ms ease;
+  }
+
+  /* ---------- alternador de tema ---------- */
+  .theme-toggle{
+    position: fixed;
+    top: 22px;
+    right: 22px;
+    z-index: 10;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 1px solid rgba(43,24,16,0.12);
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(90,58,25,0.18);
+    transition: transform 160ms ease, background-color 320ms ease;
+  }
+  .theme-toggle:hover{ transform: scale(1.06); }
+  .theme-toggle:active{ transform: scale(0.94); }
+  .theme-toggle svg{ width: 22px; height: 22px; }
+  .theme-toggle .icon-moon{ display: none; }
+  html[data-theme="dark"] .theme-toggle{ border-color: rgba(247,236,220,0.14); }
+  html[data-theme="dark"] .theme-toggle .icon-moon{ display: block; }
+  html[data-theme="dark"] .theme-toggle .icon-sun{ display: none; }
+
+  /* ---------- conteúdo, sem moldura ao redor ---------- */
+  .stage{
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 420px;
+    margin: 40px auto;
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .logo-wrap img{
+    width: min(72vw, 260px);
+    height: auto;
+    display: block;
+    margin-bottom: 18px;
+  }
+
+  .badge-gratis{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--red-bg);
+    color: var(--red);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 12.5px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+    transition: background-color 320ms ease, color 320ms ease;
+  }
+
+  h1{
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: 25px;
+    line-height: 1.25;
+    margin: 0 0 10px;
+    color: var(--text);
+  }
+
+  .subtext{
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text-muted);
+    max-width: 32ch;
+    margin: 0 0 28px;
+  }
+
+  .btn-cadastro{
+    appearance: none;
+    border: none;
+    cursor: pointer;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    text-decoration: none;
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+    color: #2b1810;
+    background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold) 55%, var(--gold-deep) 100%);
+    padding: 16px 20px;
+    border-radius: 18px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.4) inset,
+      0 -3px 6px rgba(0,0,0,0.15) inset,
+      0 14px 26px -10px rgba(90,58,25,0.35);
+    transition: transform 160ms ease, filter 160ms ease;
+  }
+  .btn-cadastro:hover{ filter: brightness(1.05); }
+  .btn-cadastro:active{ transform: translateY(1px) scale(0.98); }
+  .btn-cadastro:focus-visible{ outline: 2px solid var(--gold-deep); outline-offset: 4px; }
+
+  .login-link{
+    margin-top: 18px;
+    font-size: 13.5px;
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+  .login-link strong{
+    color: var(--gold-deep);
+    font-weight: 700;
+  }
+  .login-link:hover strong{ text-decoration: underline; }
+
+  footer{
+    position: relative;
+    z-index: 1;
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 13.5px;
+    color: var(--gold-deep);
+    padding: 18px 0 28px;
+    text-align: center;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition: none !important; }
+  }
+
+  @media (max-width: 420px){
+    .stage{ padding: 20px 20px; }
+    h1{ font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- pães espalhados de fundo -->
+  <svg class="bg-breads" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1200 1200" aria-hidden="true">
+    <defs>
+      <symbol id="bread" viewBox="0 0 64 64">
+        <path d="M8 34c0-14 10-22 24-22s24 8 24 22c0 9-6 15-14 17H22c-8-2-14-8-14-17z" fill="none" stroke="currentColor" stroke-width="3"/>
+        <path d="M20 22c3-3 8-5 12-5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+        <path d="M34 20c3 0 7 2 9 5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+      </symbol>
+    </defs>
+    <use href="#bread" x="40"   y="60"   width="80" transform="rotate(-12 80 100)"   opacity="0.22"/>
+    <use href="#bread" x="960"  y="30"   width="100" transform="rotate(8 1010 80)"   opacity="0.24"/>
+    <use href="#bread" x="170"  y="230"  width="60" transform="rotate(20 200 260)"   opacity="0.16"/>
+    <use href="#bread" x="1030" y="250"  width="65" transform="rotate(-18 1062 282)" opacity="0.20"/>
+    <use href="#bread" x="480"  y="120"  width="55" transform="rotate(-8 507 147)"   opacity="0.14"/>
+    <use href="#bread" x="50"   y="510"  width="90" transform="rotate(6 95 555)"     opacity="0.18"/>
+    <use href="#bread" x="990"  y="550"  width="80" transform="rotate(-10 1030 590)" opacity="0.16"/>
+    <use href="#bread" x="700"  y="480"  width="55" transform="rotate(14 727 507)"   opacity="0.12"/>
+    <use href="#bread" x="20"   y="820"  width="65" transform="rotate(-22 52 852)"   opacity="0.20"/>
+    <use href="#bread" x="1050" y="870"  width="95" transform="rotate(14 1097 917)"  opacity="0.18"/>
+    <use href="#bread" x="510"  y="30"   width="70" transform="rotate(-6 545 65)"    opacity="0.16"/>
+    <use href="#bread" x="550"  y="1080" width="100" transform="rotate(10 600 1130)" opacity="0.20"/>
+    <use href="#bread" x="140"  y="1000" width="60" transform="rotate(18 170 1030)"  opacity="0.14"/>
+    <use href="#bread" x="950"  y="1040" width="65" transform="rotate(-14 982 1072)" opacity="0.18"/>
+    <use href="#bread" x="330"  y="900"  width="50" transform="rotate(10 355 925)"   opacity="0.12"/>
+    <use href="#bread" x="780"  y="180"  width="50" transform="rotate(-16 805 205)"  opacity="0.14"/>
+  </svg>
+
+  <button class="theme-toggle" id="themeToggle" type="button" aria-label="Alternar modo claro e escuro">
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <circle cx="12" cy="12" r="4.5"/>
+      <path d="M12 2.5v2.5M12 19v2.5M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2.5 12H5M19 12h2.5M4.2 19.8L6 18M18 6l1.8-1.8"/>
+    </svg>
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>
+    </svg>
+  </button>
+
+  <main class="stage">
+    <div class="logo-wrap">
+      <img id="logoImg" src="logo-light.png" alt="Pãodora — Pão todo dia, histórias todo dia">
+    </div>
+
+
+    <h1>Coloque a sua padaria neste sistema.</h1>
+    <p class="subtext">Pedidos, clientes e fiado organizados em um só lugar, com a simpatia da Pãodora.</p>
+
+    <a class="btn-cadastro" href="cadastro.html">Cadastre-se</a>
+    <a class="login-link" href="#">Já tem conta? <strong>Entrar</strong></a>
+  </main>
+
+  <footer>O seu sistema amigo.</footer>
+
+  <script>
+    const root = document.documentElement;
+    const toggleBtn = document.getElementById('themeToggle');
+    const logoImg = document.getElementById('logoImg');
+
+    function updateLogo(theme){
+      logoImg.src = theme === 'dark' ? 'logo-dark.png' : 'logo-light.png';
+    }
+
+    toggleBtn.addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      updateLogo(next);
+    });
+  </script>
+</body>
+</html>

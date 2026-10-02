@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pãodora — Acesso</title>
+<style>
+/* ============================================================
+   Pãodora — sistema interno (acesso, cliente, funcionário, chefe)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap');
+
+:root{
+  --bg:           #f7ecdc;
+  --surface:      #fffaf3;
+  --surface-alt:  #fbf0dc;
+  --text:         #2b1810;
+  --text-muted:   #8a6a4c;
+  --border:       rgba(43,24,16,0.14);
+
+  --gold-light:   #f4cf87;
+  --gold:         #d79a3c;
+  --gold-deep:    #b97b25;
+
+  --red:          #c1462f;
+  --red-bg:       #f6ddd6;
+
+  --green:        #3f7d4f;
+  --green-bg:     #dfeee2;
+
+  --neutral:      #746a5c;
+  --neutral-bg:   #ece2d2;
+
+  --bread-color:  #c98a2e;
+  --shadow:       rgba(90,58,25,0.16);
+  --field-bg:     #fffdf8;
+  --warn-bg:      #fbe9cf;
+}
+
+html[data-theme="dark"]{
+  --bg:           #170f09;
+  --surface:      #241609;
+  --surface-alt:  #2c1a0c;
+  --text:         #f7ecdc;
+  --text-muted:   #c9a877;
+  --border:       rgba(247,236,220,0.14);
+
+  --gold-light:   #f6d488;
+  --gold:         #e8ac45;
+  --gold-deep:    #c98a2e;
+
+  --red:          #e2725a;
+  --red-bg:       #3a2119;
+
+  --green:        #7fbf8e;
+  --green-bg:     #1f3324;
+
+  --neutral:      #c9bfae;
+  --neutral-bg:   #2e2414;
+
+  --bread-color:  #f0bb63;
+  --shadow:       rgba(0,0,0,0.5);
+  --field-bg:     #241609;
+  --warn-bg:      #4a3418;
+}
+
+*{ box-sizing: border-box; }
+html, body{ margin:0; min-height:100%; }
+
+body{
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  position: relative;
+  overflow-x: hidden;
+  transition: background-color 320ms ease, color 320ms ease;
+}
+
+a{ color: inherit; }
+
+/* ---------- pães espalhados no fundo ---------- */
+.bg-breads{
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  color: var(--bread-color);
+  pointer-events: none;
+  transition: color 320ms ease;
+}
+
+/* ---------- alternador de tema ---------- */
+.theme-toggle{
+  position: fixed;
+  top: 22px;
+  right: 22px;
+  z-index: 10;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 6px 16px var(--shadow);
+  transition: transform 160ms ease, background-color 320ms ease, border-color 320ms ease;
+}
+.theme-toggle:hover{ transform: scale(1.06); }
+.theme-toggle:active{ transform: scale(0.94); }
+.theme-toggle svg{ width: 22px; height: 22px; }
+.theme-toggle .icon-moon{ display: none; }
+html[data-theme="dark"] .theme-toggle .icon-sun{ display: none; }
+html[data-theme="dark"] .theme-toggle .icon-moon{ display: block; }
+
+/* ---------- cabeçalho / marca ---------- */
+.site-header{
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 20px 8px;
+  text-align: center;
+}
+
+.brand-logo{
+  width: 150px;
+  height: 96px;
+  object-fit: contain;
+  display: block;
+}
+
+.role-nav{
+  display: inline-flex;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 5px;
+  margin-top: 16px;
+}
+
+.role-nav a{
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: 13.5px;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 999px;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.role-nav a.active{
+  background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold) 100%);
+  color: #2b1810;
+}
+
+.role-nav a:not(.active):hover{ color: var(--gold-deep); }
+
+/* ---------- abas internas (fazer pedido / acompanhar, etc.) ---------- */
+.tabs{
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 22px 0 26px;
+}
+
+.tabs a{
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 13.5px;
+  text-decoration: none;
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 9px 16px;
+  border-radius: 999px;
+  transition: border-color 160ms ease, color 160ms ease, background-color 160ms ease;
+}
+
+.tabs a.active{
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+}
+
+.tabs a:not(.active):hover{ border-color: var(--gold); color: var(--gold-deep); }
+
+/* ---------- layout geral ---------- */
+.container{
+  position: relative;
+  z-index: 1;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 22px 60px;
+}
+
+.page-title{
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  margin: 0 0 4px;
+  text-align: center;
+}
+
+.page-sub{
+  font-size: 14px;
+  color: var(--text-muted);
+  text-align: center;
+  margin: 0 0 8px;
+  max-width: 46ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ---------- cartões ---------- */
+.card{
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 22px;
+  margin-bottom: 22px;
+  box-shadow: 0 12px 26px -18px var(--shadow);
+}
+
+.card h2{
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: 18.5px;
+  margin: 0 0 4px;
+}
+
+.card .card-sub{
+  color: var(--text-muted);
+  font-size: 13.5px;
+  margin: 0 0 18px;
+}
+
+/* ---------- formulário ---------- */
+form{ display:flex; flex-direction:column; gap:16px; }
+
+.field label{
+  display: block;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  padding-left: 2px;
+}
+
+.field input,
+.field select,
+.field textarea{
+  width: 100%;
+  font-family: 'Nunito', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--field-bg);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 16px;
+  outline: none;
+  appearance: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 320ms ease;
+}
+
+.field textarea{ resize: vertical; min-height: 72px; font-weight: 500; }
+
+.field select{
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%238a6a4c' stroke-width='2'><path d='M5 8l5 5 5-5'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+.field input::placeholder{ color: var(--text-muted); opacity: .6; font-weight: 600; }
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus{
+  border-color: var(--gold);
+  box-shadow: 0 0 0 4px rgba(217,154,60,0.18);
+}
+
+.field-hint{ font-size:12px; color:var(--text-muted); margin-top:5px; padding-left:2px; }
+
+/* ---------- botões ---------- */
+.btn-primary, .btn-outline, .btn-danger, .btn-ghost{
+  appearance: none;
+  cursor: pointer;
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: 15.5px;
+  border-radius: 16px;
+  padding: 13px 22px;
+  border: none;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 150ms ease, filter 150ms ease, background-color 150ms ease;
+}
+
+.btn-primary{
+  color: #2b1810;
+  width: 100%;
+  background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold) 55%, var(--gold-deep) 100%);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.4) inset,
+    0 -3px 6px rgba(0,0,0,0.15) inset,
+    0 14px 24px -12px var(--shadow);
+}
+.btn-primary:hover{ filter: brightness(1.05); }
+.btn-primary:active{ transform: translateY(1px) scale(.99); }
+
+.btn-outline{
+  background: transparent;
+  color: var(--text);
+  border: 1.5px solid var(--border);
+}
+.btn-outline:hover{ border-color: var(--gold-deep); color: var(--gold-deep); }
+
+.btn-danger{
+  background: var(--red-bg);
+  color: var(--red);
+}
+.btn-danger:hover{ filter: brightness(0.97); }
+
+.btn-ghost{
+  background: transparent;
+  color: var(--text-muted);
+  padding: 8px 4px;
+}
+.btn-ghost:hover{ color: var(--gold-deep); }
+
+.btn-sm{ font-size: 13px; padding: 9px 16px; border-radius: 12px; width: auto; }
+
+.btn-row{ display:flex; flex-wrap:wrap; gap:10px; margin-top: 4px; }
+.btn-row > *{ flex: 1 1 auto; }
+
+/* ---------- tabelas ---------- */
+.table-wrap{ overflow-x: auto; }
+
+table.table{ width: 100%; border-collapse: collapse; font-size: 13.5px; }
+
+.table th{
+  text-align: left;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  color: var(--text-muted);
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  padding: 8px 10px;
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+}
+
+.table td{
+  padding: 11px 10px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.table tr:last-child td{ border-bottom: none; }
+.table tr.alert td{ background: var(--red-bg); }
+.table tr.warn td{ background: var(--warn-bg); }
+
+/* ---------- badges de status ---------- */
+.badge{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 13px;
+  border-radius: 999px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.badge::before{ content:""; width:7px; height:7px; border-radius:50%; background:currentColor; }
+
+.badge-approved{ background: var(--green-bg); color: var(--green); }
+.badge-analise{ background: var(--neutral-bg); color: var(--neutral); }
+.badge-recusado{ background: var(--red-bg); color: var(--red); }
+.badge-proposta{ background: linear-gradient(180deg, var(--gold-light), var(--gold)); color: #2b1810; }
+
+/* ---------- cartões de pedido ---------- */
+.order-card{
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px 18px;
+  background: var(--surface);
+  margin-bottom: 14px;
+}
+.order-card:last-child{ margin-bottom: 0; }
+
+.order-card-head{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.order-card-head h3{
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 16px;
+  margin: 0;
+}
+
+.order-meta{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.order-meta strong{ color: var(--text); }
+
+.order-note{
+  font-size: 13px;
+  color: var(--gold-deep);
+  background: var(--surface-alt);
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin-top: 8px;
+}
+
+.order-actions{ display:flex; flex-wrap:wrap; gap:8px; margin-top: 12px; }
+
+/* ---------- calendário ---------- */
+.calendar{
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 18px;
+}
+
+.calendar-head{
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  margin-bottom: 10px;
+}
+.calendar-head span{
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--gold-deep);
+}
+
+.calendar-grid{
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.calendar-cell{
+  position: relative;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: var(--surface-alt);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.calendar-cell.empty{ background: transparent; }
+.calendar-cell.today{
+  background: linear-gradient(180deg, var(--gold-light), var(--gold));
+  color: #2b1810;
+}
+.calendar-cell.producao::after{
+  content:"";
+  position:absolute;
+  bottom: 5px;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--red);
+}
+.calendar-cell.today.producao::after{ background: #2b1810; }
+
+.calendar-legend{
+  display:flex; align-items:center; gap:8px;
+  font-size: 12.5px; color: var(--text-muted);
+  margin-top: 14px;
+}
+.calendar-legend .dot{ width:7px; height:7px; border-radius:50%; background: var(--red); display:inline-block; }
+
+/* ---------- página de acesso ---------- */
+.access-grid{
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 440px;
+  margin: 26px auto 0;
+}
+
+.access-card{
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  padding: 18px 20px;
+  text-decoration: none;
+  color: var(--text);
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+.access-card:hover{
+  transform: translateY(-2px);
+  border-color: var(--gold);
+  box-shadow: 0 16px 30px -18px var(--shadow);
+}
+
+.access-icon{
+  width: 48px; height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, var(--gold-light), var(--gold));
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.access-icon svg{ width: 24px; height: 24px; color: #2b1810; }
+
+.access-card h3{ margin: 0 0 2px; font-family: 'Baloo 2', sans-serif; font-size: 16.5px; }
+.access-card p{ margin: 0; font-size: 13px; color: var(--text-muted); }
+.access-card .chevron{ margin-left: auto; color: var(--text-muted); flex-shrink: 0; }
+
+/* ---------- estado de sucesso ---------- */
+.success-box{
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 10px 4px 4px;
+}
+.success-box.visible{ display: flex; }
+
+.success-icon{
+  width: 58px; height: 58px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, var(--gold-light), var(--gold));
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 14px;
+}
+.success-icon svg{ width: 28px; height: 28px; color: #2b1810; }
+
+/* ---------- rodapé ---------- */
+footer{
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 13.5px;
+  color: var(--gold-deep);
+  padding: 10px 0 34px;
+}
+
+@media (max-width: 480px){
+  .container{ padding: 0 16px 50px; }
+  .order-card-head{ flex-direction: column; align-items: flex-start; }
+}
+
+</style>
+</head>
+<body>
+
+  <svg class="bg-breads" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1200 1200" aria-hidden="true">
+    <defs>
+      <symbol id="bread" viewBox="0 0 64 64">
+        <path d="M8 34c0-14 10-22 24-22s24 8 24 22c0 9-6 15-14 17H22c-8-2-14-8-14-17z" fill="none" stroke="currentColor" stroke-width="3"/>
+        <path d="M20 22c3-3 8-5 12-5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+        <path d="M34 20c3 0 7 2 9 5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+      </symbol>
+    </defs>
+    <use href="#bread" x="40"   y="60"   width="80" transform="rotate(-12 80 100)"   opacity="0.20"/>
+    <use href="#bread" x="960"  y="30"   width="100" transform="rotate(8 1010 80)"   opacity="0.22"/>
+    <use href="#bread" x="170"  y="230"  width="60" transform="rotate(20 200 260)"   opacity="0.14"/>
+    <use href="#bread" x="1030" y="250"  width="65" transform="rotate(-18 1062 282)" opacity="0.18"/>
+    <use href="#bread" x="50"   y="560"  width="90" transform="rotate(6 95 555)"     opacity="0.16"/>
+    <use href="#bread" x="990"  y="590"  width="80" transform="rotate(-10 1030 590)" opacity="0.14"/>
+    <use href="#bread" x="20"   y="880"  width="65" transform="rotate(-22 52 852)"   opacity="0.18"/>
+    <use href="#bread" x="1050" y="900"  width="95" transform="rotate(14 1097 917)"  opacity="0.16"/>
+    <use href="#bread" x="550"  y="1080" width="100" transform="rotate(10 600 1130)" opacity="0.18"/>
+    <use href="#bread" x="140"  y="1030" width="60" transform="rotate(18 170 1030)"  opacity="0.12"/>
+  </svg>
+
+  <button class="theme-toggle" id="themeToggle" type="button" aria-label="Alternar modo claro e escuro">
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="4.5"/>
+      <path d="M12 2.5v2.5M12 19v2.5M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2.5 12H5M19 12h2.5M4.2 19.8L6 18M18 6l1.8-1.8"/>
+    </svg>
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linecap="round">
+      <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>
+    </svg>
+  </button>
+
+  <header class="site-header">
+    <img class="brand-logo" id="logoImg" src="logo-light.png" alt="Pãodora">
+  </header>
+
+  <main class="container">
+    <h1 class="page-title">Qual é o seu acesso?</h1>
+    <p class="page-sub">Escolha como você quer entrar no sistema da Pãodora.</p>
+
+    <div class="access-grid" href="cadastro.html"> </div>
+      <div class="access-grid">
+      <a class="access-card" href="cliente-pedido.html">
+        <span class="access-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+        </span>
+        <span>
+          <h3>Cliente</h3>
+          <p>Fazer pedidos e acompanhar suas encomendas.</p>
+        </span>
+        <span class="chevron">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+        </span>
+      </a>
+
+      <a class="access-card" href="funcionario.html">
+        <span class="access-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        </span>
+        <span>
+          <h3>Funcionário</h3>
+          <p>Pedidos aprovados, calendário e produção do dia.</p>
+        </span>
+        <span class="chevron">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+        </span>
+      </a>
+
+      <a class="access-card" href="chefe.html">
+        <span class="access-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16M6 20V10a6 6 0 0 1 12 0v10"/><path d="M9 10a3 3 0 0 1 6 0"/></svg>
+        </span>
+        <span>
+          <h3>Chefe de produção</h3>
+          <p>Estoque, clientes e análise das encomendas.</p>
+        </span>
+        <span class="chevron">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+        </span>
+      </a>
+    </div>
+  </main>
+
+  <footer>@O seu sistema amigo.</footer>
+  <script>
+    const root = document.documentElement;
+    const toggleBtn = document.getElementById('themeToggle');
+    const logoImg = document.getElementById('logoImg');
+
+    function updateLogo(theme){
+      logoImg.src = theme === 'dark' ? 'logo-dark.png' : 'logo-light.png';
+    }
+
+    toggleBtn.addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      updateLogo(next);
+    });
+
+  </script>
+</body>
+</html>
